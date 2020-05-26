@@ -83,6 +83,9 @@ opens:  test    bp,bp
 	jz      noadn
 	mov     bp,di
 noadn:  xchg    bx,ax           ;bx=handle
+	mov     dx,msgst
+	mov     ah,display_text
+	int 21h
 	mov     cx,32768
 	mov     dx,wbuf
 	xor     si,si
@@ -147,13 +150,21 @@ clsmsq: mov     ah,close_file   ;bx=handle, dx=msg
 	mov     ah,delete_file
 	int     21h
 	pop     dx
+	jnc     msgdxq
+	cmp     dx,eol
+	je      msgerd
+	mov     ah,display_text
+	int     21h
+msgerd: mov     dx,errdf
 msgdxq: mov     ah,display_text
 	int     21h
 
 	int     20h
 
 errcf db 'Can not create cleaning file.',24h
-errwf db 'Can not write to file.',24h
+errdf db 0dh,0ah,'Can not delete cleaning file.',24h
+errwf db 0dh,0ah,'Can not write to file.',24h
+msgst db 'Wiping free space.',0dh,0ah,24h
 errex db 'File '
 dname db 'A:\'
 fname db '00000000.000',0
